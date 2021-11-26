@@ -45,6 +45,7 @@ const passiveEvent = passiveEventSupported
 const checkOverflowVisible = function checkOverflowVisible(component, parent) {
   const node = component.ref;
 
+  // 父节点操作
   let parentTop;
   let parentLeft;
   let parentHeight;
@@ -52,9 +53,13 @@ const checkOverflowVisible = function checkOverflowVisible(component, parent) {
 
   try {
     ({
+      // 距离顶部的高
       top: parentTop,
+      // 距离左边的宽
       left: parentLeft,
+      // 该元素的高
       height: parentHeight,
+      // 该元素的宽
       width: parentWidth
     } = parent.getBoundingClientRect());
   } catch (e) {
@@ -66,12 +71,16 @@ const checkOverflowVisible = function checkOverflowVisible(component, parent) {
     } = defaultBoundingClientRect);
   }
 
+  // 视窗的高
   const windowInnerHeight =
     window.innerHeight || document.documentElement.clientHeight;
+    // 视窗的宽
   const windowInnerWidth =
     window.innerWidth || document.documentElement.clientWidth;
 
   // calculate top and height of the intersection of the element's scrollParent and viewport
+  //计算元素的滚动父对象和视口交点的顶部和高度
+
   const intersectionTop = Math.max(parentTop, 0); // intersection's top relative to viewport
   const intersectionLeft = Math.max(parentLeft, 0); // intersection's left relative to viewport
   const intersectionHeight =
@@ -79,6 +88,8 @@ const checkOverflowVisible = function checkOverflowVisible(component, parent) {
   const intersectionWidth =
     Math.min(windowInnerWidth, parentLeft + parentWidth) - intersectionLeft; // width
 
+  
+  // 子元素节点操作
   // check whether the element is visible in the intersection
   let top;
   let left;
@@ -91,7 +102,9 @@ const checkOverflowVisible = function checkOverflowVisible(component, parent) {
     ({ top, left, height, width } = defaultBoundingClientRect);
   }
 
+  // 子元素相对于父元素的top
   const offsetTop = top - intersectionTop; // element's top relative to intersection
+  // 子元素相对于父元素的left
   const offsetLeft = left - intersectionLeft; // element's left relative to intersection
 
   const offsets = Array.isArray(component.props.offset)
@@ -99,6 +112,7 @@ const checkOverflowVisible = function checkOverflowVisible(component, parent) {
     : [component.props.offset, component.props.offset]; // Be compatible with previous API
 
   return (
+    // 
     offsetTop - offsets[0] <= intersectionHeight &&
     offsetTop + height + offsets[1] >= 0 &&
     offsetLeft - offsets[0] <= intersectionWidth &&
@@ -148,10 +162,12 @@ const checkNormalVisible = function checkNormalVisible(component) {
  */
 const checkVisible = function checkVisible(component) {
   const node = component.ref;
+  // 边界处理。如果不是一个有效的HTML元素，就返回
   if (!(node instanceof HTMLElement)) {
     return;
   }
 
+  // 获取元素的父节点，并且这个父节点必须有设置overflow: scroll | auto,否则就是document.documentElement
   const parent = scrollParent(node);
   const isOverflow =
     component.props.overflow &&
@@ -231,6 +247,7 @@ class LazyLoad extends Component {
     // designed for tests
     let scrollport = window;
     const { scrollContainer } = this.props;
+    // 滚动容器，如果提供了，就获取这个容器
     if (scrollContainer) {
       if (isString(scrollContainer)) {
         scrollport = scrollport.document.querySelector(scrollContainer);
